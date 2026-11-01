@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" width="180" alt="Turmeric Drying Modulus & Kinetics Study Logo">
+</p>
+
 # 🌿 Turmeric Drying Shrinkage Ratio Predictor (ANN MLP Model)
 
 An interactive Artificial Neural Network (ANN) web application for testing and predicting the **Shrinkage Ratio ($S_r = V / V_0$)** of turmeric rhizomes during convective hot-air drying. Built with Python, Scikit-Learn, and modern vanilla JavaScript with dynamic kinetic curve visualization, multi-unit input conversion, zero-dependency serverless inference, and direct Vercel deployment.

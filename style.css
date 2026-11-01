@@ -81,6 +81,23 @@ body {
   gap: 14px;
 }
 
+.brand-logo-img {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background: #ffffff;
+  padding: 3px;
+  border: 2px solid rgba(245, 158, 11, 0.4);
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-logo-img:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 28px rgba(245, 158, 11, 0.45);
+}
+
 .brand-icon {
   font-size: 32px;
   width: 52px;
