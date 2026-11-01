@@ -52,8 +52,8 @@ Input: Temperature = 80.0 °C, Time = 15.0 min
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/turmeric-shrinkage-ann.git
-cd turmeric-shrinkage-ann
+git clone https://github.com/nitishyengkhom1234-sys/Turmeric-Skrinkage-Model.git
+cd Turmeric-Skrinkage-Model
 ```
 
 ### 2. Install dependencies
@@ -121,7 +121,9 @@ print(response.json())
    git init
    git add .
    git commit -m "Initial commit of Turmeric ANN predictor"
-   gh repo create turmeric-shrinkage-ann --public --source=. --push
+   git remote add origin https://github.com/nitishyengkhom1234-sys/Turmeric-Skrinkage-Model.git
+   git branch -M main
+   git push -u origin main
    ```
 2. Go to [vercel.com](https://vercel.com) and log in.
 3. Click **Add New...** > **Project**.
