@@ -22,16 +22,32 @@ try:
 except Exception as e:
     print(f"Running in pure math inference mode: {e}")
 
-def run_forward_pass(temp: float, time_min: float):
+def convert_temp_to_celsius(val: float, unit: str = 'C') -> float:
+    unit = str(unit).strip().upper()
+    if unit in ['F', 'FAHRENHEIT', '°F']:
+        return (val - 32.0) * 5.0 / 9.0
+    elif unit in ['K', 'KELVIN']:
+        return val - 273.15
+    return val
+
+def convert_time_to_minutes(val: float, unit: str = 'min') -> float:
+    unit = str(unit).strip().lower()
+    if unit in ['h', 'hr', 'hrs', 'hour', 'hours']:
+        return val * 60.0
+    elif unit in ['s', 'sec', 'secs', 'second', 'seconds']:
+        return val / 60.0
+    return val
+
+def run_forward_pass(temp_c: float, time_min: float):
     # If scikit-learn model is available, can use it
     if sklearn_model is not None and sklearn_scaler is not None:
-        scaled = sklearn_scaler.transform([[temp, time_min]])
+        scaled = sklearn_scaler.transform([[temp_c, time_min]])
         return float(sklearn_model.predict(scaled)[0])
     
     # Standalone exact forward pass
     mean = model_data['scaler']['mean']
     scale = model_data['scaler']['scale']
-    x0 = (temp - mean[0]) / scale[0]
+    x0 = (temp_c - mean[0]) / scale[0]
     x1 = (time_min - mean[1]) / scale[1]
     
     import math
@@ -61,15 +77,30 @@ def predict_endpoint():
         if request.method == 'GET':
             temp_str = request.args.get('temp') or request.args.get('temperature')
             time_str = request.args.get('time')
+            temp_unit = request.args.get('temp_unit', 'C')
+            time_unit = request.args.get('time_unit', 'min')
+
             if temp_str is not None and time_str is not None:
-                temp = float(temp_str)
-                time_min = float(time_str)
-                prediction = run_forward_pass(temp, time_min)
+                raw_temp = float(temp_str)
+                raw_time = float(time_str)
+                temp_c = convert_temp_to_celsius(raw_temp, temp_unit)
+                time_min = convert_time_to_minutes(raw_time, time_unit)
+
+                prediction = run_forward_pass(temp_c, time_min)
                 return jsonify({
-                    "temperature": temp,
-                    "time": time_min,
+                    "input": {
+                        "temperature": raw_temp,
+                        "temp_unit": temp_unit,
+                        "time": raw_time,
+                        "time_unit": time_unit
+                    },
+                    "normalized_for_model": {
+                        "temperature_celsius": round(temp_c, 2),
+                        "time_minutes": round(time_min, 2)
+                    },
                     "predicted_shrinkage_ratio": round(prediction, 4),
                     "raw_prediction": prediction,
+                    "volume_reduction_percent": round((1.0 - prediction) * 100, 2),
                     "model": "MLPRegressor (8, 4)",
                     "r2_score": model_data['metrics']['r2_score']
                 })
@@ -77,32 +108,61 @@ def predict_endpoint():
                 "status": "online",
                 "model": model_data.get("model_type"),
                 "architecture": model_data.get("architecture"),
-                "metrics": model_data.get("metrics")
+                "metrics": model_data.get("metrics"),
+                "supported_units": {
+                    "temperature": ["C", "F", "K"],
+                    "time": ["min", "hr", "s"]
+                }
             })
 
         data = request.get_json(force=True)
         if isinstance(data, list):
             results = []
             for item in data:
-                temp = float(item.get('temperature', item.get('temp', 0)))
-                time_min = float(item.get('time', item.get('time_min', 0)))
-                pred = run_forward_pass(temp, time_min)
+                raw_temp = float(item.get('temperature', item.get('temp', 0)))
+                raw_time = float(item.get('time', item.get('time_min', 0)))
+                temp_unit = item.get('temp_unit', 'C')
+                time_unit = item.get('time_unit', 'min')
+                
+                temp_c = convert_temp_to_celsius(raw_temp, temp_unit)
+                time_min = convert_time_to_minutes(raw_time, time_unit)
+                pred = run_forward_pass(temp_c, time_min)
                 results.append({
-                    "temperature": temp,
-                    "time": time_min,
+                    "temperature": raw_temp,
+                    "temp_unit": temp_unit,
+                    "time": raw_time,
+                    "time_unit": time_unit,
+                    "temperature_celsius": round(temp_c, 2),
+                    "time_minutes": round(time_min, 2),
                     "predicted_shrinkage_ratio": round(pred, 4),
-                    "raw_prediction": pred
+                    "raw_prediction": pred,
+                    "volume_reduction_percent": round((1.0 - pred) * 100, 2)
                 })
             return jsonify({"count": len(results), "predictions": results})
         else:
-            temp = float(data.get('temperature', data.get('temp', 0)))
-            time_min = float(data.get('time', data.get('time_min', 0)))
-            prediction = run_forward_pass(temp, time_min)
+            raw_temp = float(data.get('temperature', data.get('temp', 0)))
+            raw_time = float(data.get('time', data.get('time_min', 0)))
+            temp_unit = data.get('temp_unit', 'C')
+            time_unit = data.get('time_unit', 'min')
+            
+            temp_c = convert_temp_to_celsius(raw_temp, temp_unit)
+            time_min = convert_time_to_minutes(raw_time, time_unit)
+            
+            prediction = run_forward_pass(temp_c, time_min)
             return jsonify({
-                "temperature": temp,
-                "time": time_min,
+                "input": {
+                    "temperature": raw_temp,
+                    "temp_unit": temp_unit,
+                    "time": raw_time,
+                    "time_unit": time_unit
+                },
+                "normalized_for_model": {
+                    "temperature_celsius": round(temp_c, 2),
+                    "time_minutes": round(time_min, 2)
+                },
                 "predicted_shrinkage_ratio": round(prediction, 4),
                 "raw_prediction": prediction,
+                "volume_reduction_percent": round((1.0 - prediction) * 100, 2),
                 "model": "MLPRegressor (8, 4)",
                 "r2_score": model_data['metrics']['r2_score']
             })

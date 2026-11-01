@@ -16,10 +16,25 @@ def get_model():
             with open(WEIGHTS_PATH, 'r') as f:
                 _model_cache = json.load(f)
         else:
-            # Fallback path if run from root
             with open('model_weights.json', 'r') as f:
                 _model_cache = json.load(f)
     return _model_cache
+
+def convert_temp_to_celsius(val: float, unit: str = 'C') -> float:
+    unit = str(unit).strip().upper()
+    if unit in ['F', 'FAHRENHEIT', '°F']:
+        return (val - 32.0) * 5.0 / 9.0
+    elif unit in ['K', 'KELVIN']:
+        return val - 273.15
+    return val  # Default Celsius
+
+def convert_time_to_minutes(val: float, unit: str = 'min') -> float:
+    unit = str(unit).strip().lower()
+    if unit in ['h', 'hr', 'hrs', 'hour', 'hours']:
+        return val * 60.0
+    elif unit in ['s', 'sec', 'secs', 'second', 'seconds']:
+        return val / 60.0
+    return val  # Default minutes
 
 def predict_single(temp: float, time_min: float):
     model = get_model()
@@ -60,19 +75,33 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            # Check for query params if any, e.g. /api/predict?temp=80&time=15
             from urllib.parse import urlparse, parse_qs
             query = parse_qs(urlparse(self.path).query)
             
-            if 'temp' in query and 'time' in query:
-                temp = float(query['temp'][0])
-                time_min = float(query['time'][0])
-                prediction = predict_single(temp, time_min)
+            if ('temp' in query or 'temperature' in query) and 'time' in query:
+                raw_temp = float(query.get('temp', query.get('temperature'))[0])
+                raw_time = float(query['time'][0])
+                temp_unit = query.get('temp_unit', ['C'])[0]
+                time_unit = query.get('time_unit', ['min'])[0]
+                
+                temp_c = convert_temp_to_celsius(raw_temp, temp_unit)
+                time_min = convert_time_to_minutes(raw_time, time_unit)
+                
+                prediction = predict_single(temp_c, time_min)
                 response = {
-                    "temperature": temp,
-                    "time": time_min,
+                    "input": {
+                        "temperature": raw_temp,
+                        "temp_unit": temp_unit,
+                        "time": raw_time,
+                        "time_unit": time_unit
+                    },
+                    "normalized_for_model": {
+                        "temperature_celsius": round(temp_c, 2),
+                        "time_minutes": round(time_min, 2)
+                    },
                     "predicted_shrinkage_ratio": round(prediction, 4),
                     "raw_prediction": prediction,
+                    "volume_reduction_percent": round((1.0 - prediction) * 100, 2),
                     "model": "MLPRegressor (8, 4)",
                     "r2_score": 0.99661
                 }
@@ -84,8 +113,11 @@ class handler(BaseHTTPRequestHandler):
                     "architecture": model.get("architecture"),
                     "metrics": model.get("metrics"),
                     "usage": {
-                        "post": "Send JSON {'temperature': 80.0, 'time': 15.0}",
-                        "get": "/api/predict?temp=80&time=15"
+                        "post": "Send JSON {'temperature': 80.0, 'temp_unit': 'C', 'time': 15.0, 'time_unit': 'min'}",
+                        "supported_units": {
+                            "temperature": ["C", "F", "K"],
+                            "time": ["min", "hr", "s"]
+                        }
                     }
                 }
             
@@ -111,25 +143,51 @@ class handler(BaseHTTPRequestHandler):
                 # Batch predictions
                 results = []
                 for item in payload:
-                    temp = float(item.get('temperature', item.get('temp', 0)))
-                    time_min = float(item.get('time', item.get('time_min', 0)))
-                    pred = predict_single(temp, time_min)
+                    raw_temp = float(item.get('temperature', item.get('temp', 0)))
+                    raw_time = float(item.get('time', item.get('time_min', 0)))
+                    temp_unit = item.get('temp_unit', 'C')
+                    time_unit = item.get('time_unit', 'min')
+                    
+                    temp_c = convert_temp_to_celsius(raw_temp, temp_unit)
+                    time_min = convert_time_to_minutes(raw_time, time_unit)
+                    
+                    pred = predict_single(temp_c, time_min)
                     results.append({
-                        "temperature": temp,
-                        "time": time_min,
+                        "temperature": raw_temp,
+                        "temp_unit": temp_unit,
+                        "time": raw_time,
+                        "time_unit": time_unit,
+                        "temperature_celsius": round(temp_c, 2),
+                        "time_minutes": round(time_min, 2),
                         "predicted_shrinkage_ratio": round(pred, 4),
-                        "raw_prediction": pred
+                        "raw_prediction": pred,
+                        "volume_reduction_percent": round((1.0 - pred) * 100, 2)
                     })
                 response = {"count": len(results), "predictions": results}
             else:
-                temp = float(payload.get('temperature', payload.get('temp', 0)))
-                time_min = float(payload.get('time', payload.get('time_min', 0)))
-                prediction = predict_single(temp, time_min)
+                raw_temp = float(payload.get('temperature', payload.get('temp', 0)))
+                raw_time = float(payload.get('time', payload.get('time_min', 0)))
+                temp_unit = payload.get('temp_unit', 'C')
+                time_unit = payload.get('time_unit', 'min')
+                
+                temp_c = convert_temp_to_celsius(raw_temp, temp_unit)
+                time_min = convert_time_to_minutes(raw_time, time_unit)
+                
+                prediction = predict_single(temp_c, time_min)
                 response = {
-                    "temperature": temp,
-                    "time": time_min,
+                    "input": {
+                        "temperature": raw_temp,
+                        "temp_unit": temp_unit,
+                        "time": raw_time,
+                        "time_unit": time_unit
+                    },
+                    "normalized_for_model": {
+                        "temperature_celsius": round(temp_c, 2),
+                        "time_minutes": round(time_min, 2)
+                    },
                     "predicted_shrinkage_ratio": round(prediction, 4),
                     "raw_prediction": prediction,
+                    "volume_reduction_percent": round((1.0 - prediction) * 100, 2),
                     "model": "MLPRegressor (8, 4)",
                     "r2_score": 0.99661
                 }

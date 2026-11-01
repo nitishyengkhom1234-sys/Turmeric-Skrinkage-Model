@@ -1,23 +1,27 @@
 # 🌿 Turmeric Drying Shrinkage Ratio Predictor (ANN MLP Model)
 
-An interactive Artificial Neural Network (ANN) web application for testing and predicting the **Shrinkage Ratio ($S_r = V / V_0$)** of turmeric rhizomes during convective hot-air drying. Built with Python, Scikit-Learn, and modern vanilla JavaScript with dynamic kinetic curve visualization, zero-dependency serverless inference, and direct Vercel deployment.
+An interactive Artificial Neural Network (ANN) web application for testing and predicting the **Shrinkage Ratio ($S_r = V / V_0$)** of turmeric rhizomes during convective hot-air drying. Built with Python, Scikit-Learn, and modern vanilla JavaScript with dynamic kinetic curve visualization, multi-unit input conversion, zero-dependency serverless inference, and direct Vercel deployment.
 
-[![Accuracy](https://img.shields.io/badge/Model%20Accuracy%20R²-0.99661-success?style=for-the-badge)](https://github.com)
-[![Architecture](https://img.shields.io/badge/Architecture-ANN%20(8%2C%204)%20tanh-amber?style=for-the-badge)](https://github.com)
+[![Accuracy](https://img.shields.io/badge/Model%20Accuracy%20R²-0.99661-success?style=for-the-badge)](https://github.com/nitishyengkhom1234-sys/Turmeric-Skrinkage-Model)
+[![Architecture](https://img.shields.io/badge/Architecture-ANN%20(8%2C%204)%20tanh-amber?style=for-the-badge)](https://github.com/nitishyengkhom1234-sys/Turmeric-Skrinkage-Model)
 [![Deploy](https://img.shields.io/badge/Deployment-Vercel%20Serverless-black?style=for-the-badge&logo=vercel)](https://vercel.com)
 
 ---
 
-## 📌 Overview
+## 📌 Features
 
-During convective thermal drying of turmeric rhizomes, moisture removal triggers tissue contraction and volumetric shrinkage. Predicting the shrinkage ratio as a function of **Temperature (°C)** and **Drying Duration (min)** is critical for food processing optimization, energy management, and quality control.
-
-This web application wraps an optimized **Multi-Layer Perceptron Regressor (`MLPRegressor`)** with:
-- **Instant Client-Side & Server-Side Prediction**: Instant response with zero cold-boot delays.
-- **Dynamic Drying Kinetics Chart**: Real-time curve of $S_r$ vs Time at any selected temperature with experimental scatter plots for 50°C, 60°C, and 70°C.
-- **Morphological Rhizome Visualizer**: Visual simulation of physical shrinkage.
-- **Batch Evaluation & CSV Export**: Bulk testing for laboratory experiments.
-- **Production REST API**: Serverless `/api/predict` endpoint ready for integration.
+- **Optional Units for Temperature & Time**:
+  - **Temperature Units**: Celsius (`°C`), Fahrenheit (`°F`), and Kelvin (`K`).
+  - **Time Units**: Minutes (`min`), Hours (`hr`), and Seconds (`s`).
+  - Automatic live conversion and validation against the model's standardized input space.
+- **Dynamic Kinetics Graph (User-Data Driven)**:
+  - Real-time drying curve of $S_r$ vs Time generated at the user's selected temperature.
+  - The graph's X-axis dynamically scales and reflects the user's active time unit (`min`, `hr`, or `s`).
+  - **User Data Points Overlay**: Pin current test scenarios or input laboratory observations directly onto the chart to compare empirical measurements with the ANN model.
+  - Toggleable experimental data overlays for 50°C, 60°C, and 70°C drying trials.
+- **Morphological Rhizome Visualizer**: Visual simulation showing cross-sectional contraction ($S_r^{1/2}$).
+- **Batch Evaluation & CSV Export**: Bulk prediction table with per-row unit selectors.
+- **Zero-Dependency Serverless REST API**: Production `/api/predict` endpoint deployable on Vercel with zero heavy wheel overhead.
 
 ---
 
@@ -42,7 +46,7 @@ This web application wraps an optimized **Multi-Layer Perceptron Regressor (`MLP
 
 ### Benchmark Test Case
 ```
-Input: Temperature = 80.0 °C, Time = 15.0 min
+Input: Temperature = 80.0 °C (176.0 °F / 353.15 K), Time = 15.0 min (0.25 hr / 900 s)
 --> Predicted Shrinkage Ratio: 0.3593 (64.07% Volume Reduction)
 ```
 
@@ -69,26 +73,37 @@ This automatically starts the server at `http://127.0.0.1:5000/` and opens your 
 
 ---
 
-## ⚡ Production REST API Reference
+## ⚡ Production REST API Reference (Unit-Aware)
 
 ### `POST /api/predict`
-Calculates the predicted shrinkage ratio for a given temperature and drying duration.
+Calculates the predicted shrinkage ratio. Temperature and time units are optional and default to `°C` and `min`.
 
-#### Request (JSON)
+#### Request with Optional Units (JSON)
 ```json
 {
-  "temperature": 80.0,
-  "time": 15.0
+  "temperature": 176.0,
+  "temp_unit": "F",
+  "time": 0.25,
+  "time_unit": "hr"
 }
 ```
 
 #### Response (200 OK)
 ```json
 {
-  "temperature": 80.0,
-  "time": 15.0,
+  "input": {
+    "temperature": 176.0,
+    "temp_unit": "F",
+    "time": 0.25,
+    "time_unit": "hr"
+  },
+  "normalized_for_model": {
+    "temperature_celsius": 80.0,
+    "time_minutes": 15.0
+  },
   "predicted_shrinkage_ratio": 0.3593,
   "raw_prediction": 0.3592706320668791,
+  "volume_reduction_percent": 64.07,
   "model": "MLPRegressor (8, 4)",
   "r2_score": 0.99661
 }
@@ -96,45 +111,19 @@ Calculates the predicted shrinkage ratio for a given temperature and drying dura
 
 #### cURL Example
 ```bash
-curl -X POST https://<your-vercel-domain>.vercel.app/api/predict \
+curl -X POST https://turmeric-skrinkage-model.vercel.app/api/predict \
   -H "Content-Type: application/json" \
-  -d '{"temperature": 80.0, "time": 15.0}'
-```
-
-#### Python Example
-```python
-import requests
-
-url = "https://<your-vercel-domain>.vercel.app/api/predict"
-payload = {"temperature": 80.0, "time": 15.0}
-response = requests.post(url, json=payload)
-print(response.json())
+  -d '{"temperature": 176.0, "temp_unit": "F", "time": 0.25, "time_unit": "hr"}'
 ```
 
 ---
 
 ## 🌐 Deploying to Vercel
 
-### Option 1: Automatic Deployment via GitHub (Recommended)
-1. Push this repository to GitHub:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of Turmeric ANN predictor"
-   git remote add origin https://github.com/nitishyengkhom1234-sys/Turmeric-Skrinkage-Model.git
-   git branch -M main
-   git push -u origin main
-   ```
-2. Go to [vercel.com](https://vercel.com) and log in.
-3. Click **Add New...** > **Project**.
-4. Import your `turmeric-shrinkage-ann` repository.
-5. Click **Deploy**. Vercel will build and serve both the static web frontend and the `/api/predict` serverless functions automatically!
-
-### Option 2: Deploy directly via Vercel CLI
-```bash
-vercel login
-vercel --prod
-```
+### Automatic Deployment via GitHub
+1. Go to [vercel.com/new](https://vercel.com/new) and log in with your GitHub account.
+2. Under **"Import Git Repository"**, select **`Turmeric-Skrinkage-Model`**.
+3. Click **Deploy**. Vercel will immediately build and serve both the static web frontend and the `/api/predict` serverless functions.
 
 ---
 
@@ -143,10 +132,10 @@ vercel --prod
 ```
 Turmeric/
 ├── api/
-│   └── predict.py          # Vercel serverless Python API handler
-├── index.html              # Modern, responsive testing UI
+│   └── predict.py          # Unit-aware Vercel serverless Python API handler
+├── index.html              # Modern, responsive UI with unit selection & user-data graph
 ├── style.css               # Clean styling with turmeric amber palette
-├── app.js                  # Dynamic UI, Chart.js curves, forward pass logic
+├── app.js                  # Dynamic UI, unit conversions, Chart.js curves & user data
 ├── model_weights.json      # Scaler parameters, trained neural weights & metadata
 ├── turmeric_model.joblib   # Trained Scikit-Learn MLPRegressor binary
 ├── scaler.joblib           # Fitted StandardScaler binary

@@ -45,83 +45,105 @@
             <div class="card-title-group">
               <span class="icon-bubble">🎛️</span>
               <div>
-                <h2>Test Parameters</h2>
-                <p>Adjust temperature & drying duration to evaluate the ANN model</p>
+                <h2>Input Test Parameters</h2>
+                <p>Enter temperature & drying duration with optional units</p>
               </div>
             </div>
           </div>
 
           <div class="card-body">
-            <!-- Temperature Control -->
+            <!-- Temperature Control with Optional Units -->
             <div class="input-block">
               <div class="input-label-row">
-                <label for="tempInput">Drying Temperature</label>
-                <div class="value-display">
-                  <span id="tempValue">80.0</span> <span class="unit">°C</span>
+                <label for="tempNumericInput">Drying Temperature</label>
+                <div class="unit-selector-wrapper">
+                  <span class="unit-label">Unit:</span>
+                  <select id="tempUnitSelect" class="unit-select" onchange="onTempUnitChange()">
+                    <option value="C" selected>°C (Celsius)</option>
+                    <option value="F">°F (Fahrenheit)</option>
+                    <option value="K">K (Kelvin)</option>
+                  </select>
                 </div>
               </div>
-              <input type="range" id="tempSlider" min="40" max="100" step="0.5" value="80.0" class="slider slider-temp">
-              <div class="slider-ticks">
-                <span onclick="setTemp(50)">50°C</span>
-                <span onclick="setTemp(60)">60°C</span>
-                <span onclick="setTemp(70)">70°C</span>
-                <span onclick="setTemp(80)">80°C</span>
-                <span onclick="setTemp(90)">90°C</span>
+
+              <div class="input-row-flex">
+                <div class="numeric-input-box">
+                  <input type="number" id="tempNumericInput" step="0.5" value="80.0" class="numeric-input">
+                  <span class="unit-tag" id="tempUnitTag">°C</span>
+                </div>
+                <div class="conversion-indicator" id="tempConversionBadge">
+                  = <span id="tempInCelsius">80.0</span> °C (Model Input)
+                </div>
               </div>
-              <div class="quick-chips">
-                <span class="quick-chip" onclick="setTemp(50)">50 °C (Lab)</span>
-                <span class="quick-chip" onclick="setTemp(60)">60 °C (Lab)</span>
-                <span class="quick-chip" onclick="setTemp(70)">70 °C (Lab)</span>
-                <span class="quick-chip active" id="chipTemp80" onclick="setTemp(80)">80 °C (Test)</span>
+
+              <input type="range" id="tempSlider" min="30" max="120" step="0.5" value="80.0" class="slider slider-temp">
+              
+              <div class="slider-ticks" id="tempTicks">
+                <!-- Populated dynamically based on unit -->
+              </div>
+
+              <div class="quick-chips" id="tempQuickChips">
+                <!-- Populated dynamically based on unit -->
               </div>
             </div>
 
-            <!-- Drying Time Control -->
+            <!-- Drying Time Control with Optional Units -->
             <div class="input-block">
               <div class="input-label-row">
-                <label for="timeInput">Drying Duration</label>
-                <div class="value-display">
-                  <span id="timeValue">15.0</span> <span class="unit">min</span>
+                <label for="timeNumericInput">Drying Duration</label>
+                <div class="unit-selector-wrapper">
+                  <span class="unit-label">Unit:</span>
+                  <select id="timeUnitSelect" class="unit-select" onchange="onTimeUnitChange()">
+                    <option value="min" selected>Minutes (min)</option>
+                    <option value="hr">Hours (hr)</option>
+                    <option value="s">Seconds (s)</option>
+                  </select>
                 </div>
               </div>
-              <input type="range" id="timeSlider" min="0" max="50" step="0.5" value="15.0" class="slider slider-time">
-              <div class="slider-ticks">
-                <span onclick="setTime(0)">0 min</span>
-                <span onclick="setTime(10)">10 min</span>
-                <span onclick="setTime(20)">20 min</span>
-                <span onclick="setTime(30)">30 min</span>
-                <span onclick="setTime(40)">40 min</span>
+
+              <div class="input-row-flex">
+                <div class="numeric-input-box">
+                  <input type="number" id="timeNumericInput" step="0.5" value="15.0" class="numeric-input">
+                  <span class="unit-tag" id="timeUnitTag">min</span>
+                </div>
+                <div class="conversion-indicator" id="timeConversionBadge">
+                  = <span id="timeInMinutes">15.0</span> min (Model Input)
+                </div>
               </div>
-              <div class="quick-chips">
-                <span class="quick-chip" onclick="setTime(0)">0 min (Fresh)</span>
-                <span class="quick-chip" onclick="setTime(10)">10 min</span>
-                <span class="quick-chip active" id="chipTime15" onclick="setTime(15)">15 min (Test)</span>
-                <span class="quick-chip" onclick="setTime(25)">25 min</span>
+
+              <input type="range" id="timeSlider" min="0" max="60" step="0.5" value="15.0" class="slider slider-time">
+              
+              <div class="slider-ticks" id="timeTicks">
+                <!-- Populated dynamically based on unit -->
+              </div>
+
+              <div class="quick-chips" id="timeQuickChips">
+                <!-- Populated dynamically based on unit -->
               </div>
             </div>
 
-            <!-- Trial Presets -->
+            <!-- Quick Trial Presets -->
             <div class="presets-container">
               <div class="presets-header">
-                <span>⚡ Quick Trial Scenarios:</span>
+                <span>⚡ Benchmark Test Scenarios:</span>
               </div>
               <div class="presets-grid">
-                <button class="preset-btn featured" onclick="applyPreset(80.0, 15.0)">
-                  <span class="preset-badge">Python Test</span>
+                <button class="preset-btn featured" onclick="applyPresetBase(80.0, 15.0)">
+                  <span class="preset-badge">Prompt Test</span>
                   <span class="preset-main">80 °C · 15 min</span>
                   <span class="preset-sub">Shrinkage ~ 0.3593</span>
                 </button>
-                <button class="preset-btn" onclick="applyPreset(50.0, 10.0)">
+                <button class="preset-btn" onclick="applyPresetBase(50.0, 10.0)">
                   <span class="preset-badge">Exp 50°C</span>
                   <span class="preset-main">50 °C · 10 min</span>
                   <span class="preset-sub">Actual: 0.7213</span>
                 </button>
-                <button class="preset-btn" onclick="applyPreset(60.0, 20.0)">
+                <button class="preset-btn" onclick="applyPresetBase(60.0, 20.0)">
                   <span class="preset-badge">Exp 60°C</span>
                   <span class="preset-main">60 °C · 20 min</span>
                   <span class="preset-sub">Actual: 0.4026</span>
                 </button>
-                <button class="preset-btn" onclick="applyPreset(70.0, 12.0)">
+                <button class="preset-btn" onclick="applyPresetBase(70.0, 12.0)">
                   <span class="preset-badge">Exp 70°C</span>
                   <span class="preset-main">70 °C · 12 min</span>
                   <span class="preset-sub">Actual: 0.4491</span>
@@ -165,7 +187,7 @@
                   <div class="rhizome-slice fresh">
                     <span class="slice-inner"></span>
                   </div>
-                  <div class="slice-label">Fresh (t = 0)<br><strong>1.0000 (100%)</strong></div>
+                  <div class="slice-label">Fresh Rhizome<br><strong>1.0000 (100%)</strong></div>
                 </div>
 
                 <div class="arrow-indicator">➔</div>
@@ -184,6 +206,14 @@
               <div class="breakdown-title">Forward Propagation Trace:</div>
               <div class="breakdown-grid">
                 <div class="math-pill">
+                  <span class="math-label">Model Input Temp:</span>
+                  <span class="math-val" id="traceTemp">80.00 °C</span>
+                </div>
+                <div class="math-pill">
+                  <span class="math-label">Model Input Time:</span>
+                  <span class="math-val" id="traceTime">15.00 min</span>
+                </div>
+                <div class="math-pill">
                   <span class="math-label">Z-Scaled Temp:</span>
                   <span class="math-val" id="mathZTemp">+2.671</span>
                 </div>
@@ -191,19 +221,14 @@
                   <span class="math-label">Z-Scaled Time:</span>
                   <span class="math-val" id="mathZTime">+0.150</span>
                 </div>
-                <div class="math-pill">
-                  <span class="math-label">Hidden L1 (8):</span>
-                  <span class="math-val">tanh activated</span>
-                </div>
-                <div class="math-pill">
-                  <span class="math-label">Hidden L2 (4):</span>
-                  <span class="math-val">tanh activated</span>
-                </div>
               </div>
             </div>
 
             <!-- Quick Action Buttons -->
             <div class="result-actions">
+              <button class="action-btn secondary" onclick="pinCurrentTestToChart()">
+                📌 Pin to Graph
+              </button>
               <button class="action-btn secondary" onclick="copyPrediction()">
                 📋 Copy Result
               </button>
@@ -219,40 +244,115 @@
       <!-- Tabs Navigation -->
       <section class="tabs-section">
         <div class="tabs-nav">
-          <button class="tab-btn active" onclick="switchTab('chart')">📈 Drying Kinetics Curve</button>
+          <button class="tab-btn active" onclick="switchTab('chart')">📈 Dynamic Kinetics Graph</button>
+          <button class="tab-btn" onclick="switchTab('userdata')">🧪 User Input Data Points (<span id="userPointsCount">0</span>)</button>
           <button class="tab-btn" onclick="switchTab('dataset')">📊 Experimental Dataset (34)</button>
-          <button class="tab-btn" onclick="switchTab('batch')">🧪 Batch Prediction Tester</button>
+          <button class="tab-btn" onclick="switchTab('batch')">⚡ Batch Prediction Tester</button>
           <button class="tab-btn" onclick="switchTab('api')">💻 REST API Docs & Code</button>
-          <button class="tab-btn" onclick="switchTab('model')">🧠 Model Architecture</button>
+          <button class="tab-btn" onclick="switchTab('model')">🧠 Model Specs</button>
         </div>
 
-        <!-- Tab 1: Dynamic Kinetics Chart -->
+        <!-- Tab 1: Dynamic Kinetics Chart According to User Input & User Data -->
         <div id="tab-chart" class="tab-panel active">
           <div class="card chart-card">
             <div class="card-header chart-header">
               <div>
-                <h3>Dynamic Shrinkage Ratio vs Drying Time Kinetics</h3>
-                <p>The amber curve shows the ANN continuous prediction for <strong id="chartTempLabel">80.0 °C</strong>. Colored scatter points represent empirical experimental measurements.</p>
+                <h3>Dynamic Drying Kinetics Graph</h3>
+                <p>Adapts in real-time to your selected <strong id="chartTempDisplay">80.0 °C</strong> and time unit (<strong id="chartTimeUnitDisplay">min</strong>). Shows model prediction, user input points, and experimental data.</p>
               </div>
-              <div class="chart-controls">
+              <div class="chart-header-actions">
+                <button class="action-btn-sm primary" onclick="pinCurrentTestToChart()">+ Pin Current Input to Graph</button>
+              </div>
+            </div>
+
+            <!-- Graph Filter & Controls Bar -->
+            <div class="chart-toggles-bar">
+              <div class="toggle-group">
+                <span class="toggle-title">Graph Overlays:</span>
+                <label><input type="checkbox" id="showUserPoints" checked onchange="updateChart()"> 🌟 User Input Data Points (<span id="userPointsBadge">0</span>)</label>
                 <label><input type="checkbox" id="showExp50" checked onchange="updateChart()"> 50°C Exp Data</label>
                 <label><input type="checkbox" id="showExp60" checked onchange="updateChart()"> 60°C Exp Data</label>
                 <label><input type="checkbox" id="showExp70" checked onchange="updateChart()"> 70°C Exp Data</label>
               </div>
+              <div class="toggle-group">
+                <button class="action-btn-sm secondary" onclick="openAddPointModal()">+ Add Custom User Point</button>
+                <button class="action-btn-sm secondary" onclick="clearUserPoints()">Clear User Data</button>
+              </div>
             </div>
+
             <div class="chart-container">
               <canvas id="kineticsChart"></canvas>
             </div>
           </div>
         </div>
 
-        <!-- Tab 2: Experimental Dataset Explorer -->
+        <!-- Tab 2: User Input Data Points Table & Manager -->
+        <div id="tab-userdata" class="tab-panel">
+          <div class="card table-card">
+            <div class="card-header">
+              <div>
+                <h3>User Input Data Points & Field Observations</h3>
+                <p>Data points entered by you that are dynamically plotted on the kinetics graph.</p>
+              </div>
+              <div class="batch-actions">
+                <button class="action-btn secondary" onclick="pinCurrentTestToChart()">+ Add Current Test</button>
+                <button class="action-btn primary" onclick="openAddPointModal()">+ Add New Data Point</button>
+                <button class="action-btn secondary" onclick="exportUserDataCSV()">⬇ Export CSV</button>
+              </div>
+            </div>
+
+            <!-- Custom Point Entry Form -->
+            <div class="custom-entry-strip">
+              <div class="entry-field">
+                <label>Label / Note:</label>
+                <input type="text" id="newPointLabel" value="Trial Point" class="table-input" style="width: 130px;">
+              </div>
+              <div class="entry-field">
+                <label>Temperature:</label>
+                <input type="number" step="0.5" id="newPointTemp" value="80.0" class="table-input" style="width: 85px;">
+                <span class="unit-tag-sm" id="newPointTempUnit">°C</span>
+              </div>
+              <div class="entry-field">
+                <label>Time:</label>
+                <input type="number" step="0.5" id="newPointTime" value="15.0" class="table-input" style="width: 85px;">
+                <span class="unit-tag-sm" id="newPointTimeUnit">min</span>
+              </div>
+              <div class="entry-field">
+                <label>Observed Sr (Optional):</label>
+                <input type="number" step="0.0001" min="0" max="1" id="newPointObservedSr" placeholder="e.g. 0.36" class="table-input" style="width: 95px;">
+              </div>
+              <button class="action-btn primary" onclick="submitCustomPoint()">Save & Plot on Graph</button>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="data-table" id="userPointsTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Label</th>
+                    <th>Temperature</th>
+                    <th>Time</th>
+                    <th>Observed Sr</th>
+                    <th>ANN Model Prediction</th>
+                    <th>Delta / Difference</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="userPointsTableBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Experimental Dataset Explorer -->
         <div id="tab-dataset" class="tab-panel">
           <div class="card table-card">
             <div class="card-header">
               <div>
                 <h3>Empirical Experimental Dataset (`turmeric_data.csv`)</h3>
-                <p>Experimental observations from convective drying trials alongside model prediction & residual error.</p>
+                <p>34 experimental observations from convective drying trials alongside model prediction & residual error.</p>
               </div>
               <div class="filter-group">
                 <button class="filter-btn active" onclick="filterDataset('all', this)">All (34)</button>
@@ -282,13 +382,13 @@
           </div>
         </div>
 
-        <!-- Tab 3: Batch Prediction Tester -->
+        <!-- Tab 4: Batch Prediction Tester -->
         <div id="tab-batch" class="tab-panel">
           <div class="card">
             <div class="card-header">
               <div>
-                <h3>Batch Testing & Custom Inputs</h3>
-                <p>Input multiple test scenarios to evaluate or export results in bulk</p>
+                <h3>Batch Testing with Flexible Units</h3>
+                <p>Evaluate multiple test scenarios with selectable units and export results to CSV.</p>
               </div>
               <div class="batch-actions">
                 <button class="action-btn secondary" onclick="addBatchRow()">+ Add Test Row</button>
@@ -301,8 +401,10 @@
                 <thead>
                   <tr>
                     <th>Row</th>
-                    <th>Temperature (°C)</th>
-                    <th>Time (minutes)</th>
+                    <th>Temperature</th>
+                    <th>Unit</th>
+                    <th>Time</th>
+                    <th>Unit</th>
                     <th>Predicted Shrinkage Ratio</th>
                     <th>Volume Reduction</th>
                     <th>Action</th>
@@ -316,31 +418,41 @@
           </div>
         </div>
 
-        <!-- Tab 4: REST API Documentation -->
+        <!-- Tab 5: REST API Documentation -->
         <div id="tab-api" class="tab-panel">
           <div class="card">
             <div class="card-header">
               <div>
-                <h3>Production REST API Reference</h3>
-                <p>Deployable serverless endpoints compatible with Vercel and local hosting</p>
+                <h3>Production REST API Reference (Unit-Aware)</h3>
+                <p>Serverless endpoints supporting optional units (°C, °F, K, min, hr, s)</p>
               </div>
               <span class="badge-post">POST /api/predict</span>
             </div>
             <div class="card-body">
               <div class="api-docs-grid">
                 <div class="api-spec-col">
-                  <h4>Request Schema (JSON)</h4>
+                  <h4>Request Schema (Optional Units)</h4>
                   <pre class="code-block"><code>{
-  "temperature": 80.0,
-  "time": 15.0
+  "temperature": 176.0,
+  "temp_unit": "F",       // "C", "F", or "K" (default "C")
+  "time": 0.25,
+  "time_unit": "hr"       // "min", "hr", or "s" (default "min")
 }</code></pre>
 
                   <h4>Response Schema (200 OK)</h4>
                   <pre class="code-block"><code>{
-  "temperature": 80.0,
-  "time": 15.0,
+  "input": {
+    "temperature": 176.0,
+    "temp_unit": "F",
+    "time": 0.25,
+    "time_unit": "hr"
+  },
+  "normalized_for_model": {
+    "temperature_celsius": 80.0,
+    "time_minutes": 15.0
+  },
   "predicted_shrinkage_ratio": 0.3593,
-  "raw_prediction": 0.3592706320668791,
+  "volume_reduction_percent": 64.07,
   "model": "MLPRegressor (8, 4)",
   "r2_score": 0.99661
 }</code></pre>
@@ -355,27 +467,38 @@
                   </div>
 
                   <div id="code-curl" class="code-snippet active">
-                    <pre class="code-block"><code>curl -X POST https://your-domain.vercel.app/api/predict \
+                    <pre class="code-block"><code>curl -X POST https://turmeric-skrinkage-model.vercel.app/api/predict \
   -H "Content-Type: application/json" \
-  -d '{"temperature": 80.0, "time": 15.0}'</code></pre>
+  -d '{"temperature": 176.0, "temp_unit": "F", "time": 0.25, "time_unit": "hr"}'</code></pre>
                   </div>
 
                   <div id="code-python" class="code-snippet">
                     <pre class="code-block"><code>import requests
 
-url = "https://your-domain.vercel.app/api/predict"
-payload = {"temperature": 80.0, "time": 15.0}
+url = "https://turmeric-skrinkage-model.vercel.app/api/predict"
+payload = {
+    "temperature": 176.0,
+    "temp_unit": "F",
+    "time": 0.25,
+    "time_unit": "hr"
+}
 response = requests.post(url, json=payload)
 data = response.json()
 
-print(f"Predicted Shrinkage Ratio: {data['predicted_shrinkage_ratio']}")</code></pre>
+print(f"Predicted Shrinkage Ratio: {data['predicted_shrinkage_ratio']}")
+print(f"Model Input (°C, min): {data['normalized_for_model']}")</code></pre>
                   </div>
 
                   <div id="code-javascript" class="code-snippet">
                     <pre class="code-block"><code>const res = await fetch('/api/predict', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ temperature: 80.0, time: 15.0 })
+  body: JSON.stringify({
+    temperature: 176.0,
+    temp_unit: 'F',
+    time: 0.25,
+    time_unit: 'hr'
+  })
 });
 const data = await res.json();
 console.log('Prediction:', data.predicted_shrinkage_ratio);</code></pre>
@@ -386,7 +509,7 @@ console.log('Prediction:', data.predicted_shrinkage_ratio);</code></pre>
           </div>
         </div>
 
-        <!-- Tab 5: Model Architecture -->
+        <!-- Tab 6: Model Architecture -->
         <div id="tab-model" class="tab-panel">
           <div class="card">
             <div class="card-header">
