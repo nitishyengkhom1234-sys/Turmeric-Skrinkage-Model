@@ -1,0 +1,319 @@
+{
+  "model_type": "MLPRegressor",
+  "architecture": {
+    "input_dim": 2,
+    "hidden_layers": [
+      8,
+      4
+    ],
+    "output_dim": 1,
+    "activation": "tanh",
+    "solver": "lbfgs",
+    "random_state": 42
+  },
+  "metrics": {
+    "r2_score": 0.996612620124306,
+    "mse": 0.00011351448701438139,
+    "rmse": 0.01065431776391062,
+    "sample_count": 34,
+    "train_count": 27,
+    "test_count": 7
+  },
+  "scaler": {
+    "mean": [
+      58.148148148148145,
+      13.481481481481481
+    ],
+    "scale": [
+      8.181748901620193,
+      10.12283948735206
+    ],
+    "var": [
+      66.94101508916323,
+      102.4718792866941
+    ]
+  },
+  "weights": {
+    "coefs": [
+      [
+        [
+          0.11942184487029692,
+          0.5849664586911719,
+          0.11461239632614575,
+          0.05565650448197999,
+          -0.1576711343517674,
+          -0.416022378596196,
+          -0.2204157528650356,
+          0.5145986181259907
+        ],
+        [
+          0.23869049193083364,
+          0.0931314164134891,
+          -0.4744929084627257,
+          0.567704543345954,
+          0.35305925933806576,
+          -0.3881169887414966,
+          -0.6601005539137174,
+          -0.07182402722524998
+        ]
+      ],
+      [
+        [
+          0.16975881358225345,
+          0.7336415711320746,
+          -0.3383087759856766,
+          0.1654441372765674
+        ],
+        [
+          0.2023676642302713,
+          -0.6617923545507215,
+          -0.03139766644716895,
+          -0.32481892172172744
+        ],
+        [
+          -0.967761666762508,
+          0.26130679985604005,
+          0.7130535623562356,
+          0.40802607972547544
+        ],
+        [
+          0.13142791337685544,
+          -0.08423304799458127,
+          0.15504363885126027,
+          0.14438949742717822
+        ],
+        [
+          -0.2769465641929758,
+          0.26138952369240315,
+          -0.46577952309333553,
+          0.5388609251709421
+        ],
+        [
+          -0.3051976801397271,
+          0.3881308846498049,
+          -0.10697739990546823,
+          0.0686543403614308
+        ],
+        [
+          0.012811553523264109,
+          -0.45788405147050765,
+          0.6621521981730951,
+          0.2661286112456627
+        ],
+        [
+          0.15176127702283188,
+          0.23868004724640657,
+          0.33621794760419055,
+          0.596305285601784
+        ]
+      ],
+      [
+        [
+          -0.46738757544467047
+        ],
+        [
+          -0.30828323714096867
+        ],
+        [
+          0.46702252780807324
+        ],
+        [
+          0.05543899436113709
+        ]
+      ]
+    ],
+    "intercepts": [
+      [
+        -0.41372350393251955,
+        0.27993704283736154,
+        -1.0001036195202941,
+        -0.296121627160597,
+        0.25576805779648254,
+        -0.5696625951087326,
+        -0.39289594888091406,
+        -0.03604191112752851
+      ],
+      [
+        -0.7498694733885847,
+        -0.982813349237449,
+        -0.6870701662171721,
+        -0.5964302200437198
+      ],
+      [
+        0.7226935219508809
+      ]
+    ]
+  },
+  "training_data": [
+    {
+      "Temperature": 50,
+      "Time": 0,
+      "ShrinkageRatio": 1.0
+    },
+    {
+      "Temperature": 50,
+      "Time": 2,
+      "ShrinkageRatio": 0.9338
+    },
+    {
+      "Temperature": 50,
+      "Time": 4,
+      "ShrinkageRatio": 0.8733
+    },
+    {
+      "Temperature": 50,
+      "Time": 6,
+      "ShrinkageRatio": 0.818
+    },
+    {
+      "Temperature": 50,
+      "Time": 8,
+      "ShrinkageRatio": 0.7675
+    },
+    {
+      "Temperature": 50,
+      "Time": 10,
+      "ShrinkageRatio": 0.7213
+    },
+    {
+      "Temperature": 50,
+      "Time": 12,
+      "ShrinkageRatio": 0.6791
+    },
+    {
+      "Temperature": 50,
+      "Time": 16,
+      "ShrinkageRatio": 0.6053
+    },
+    {
+      "Temperature": 50,
+      "Time": 20,
+      "ShrinkageRatio": 0.5437
+    },
+    {
+      "Temperature": 50,
+      "Time": 24,
+      "ShrinkageRatio": 0.4921
+    },
+    {
+      "Temperature": 50,
+      "Time": 28,
+      "ShrinkageRatio": 0.4491
+    },
+    {
+      "Temperature": 50,
+      "Time": 32,
+      "ShrinkageRatio": 0.4132
+    },
+    {
+      "Temperature": 50,
+      "Time": 36,
+      "ShrinkageRatio": 0.3832
+    },
+    {
+      "Temperature": 60,
+      "Time": 0,
+      "ShrinkageRatio": 1.0
+    },
+    {
+      "Temperature": 60,
+      "Time": 2,
+      "ShrinkageRatio": 0.8929
+    },
+    {
+      "Temperature": 60,
+      "Time": 4,
+      "ShrinkageRatio": 0.8007
+    },
+    {
+      "Temperature": 60,
+      "Time": 6,
+      "ShrinkageRatio": 0.7213
+    },
+    {
+      "Temperature": 60,
+      "Time": 8,
+      "ShrinkageRatio": 0.653
+    },
+    {
+      "Temperature": 60,
+      "Time": 10,
+      "ShrinkageRatio": 0.5942
+    },
+    {
+      "Temperature": 60,
+      "Time": 12,
+      "ShrinkageRatio": 0.5437
+    },
+    {
+      "Temperature": 60,
+      "Time": 16,
+      "ShrinkageRatio": 0.4626
+    },
+    {
+      "Temperature": 60,
+      "Time": 20,
+      "ShrinkageRatio": 0.4026
+    },
+    {
+      "Temperature": 60,
+      "Time": 24,
+      "ShrinkageRatio": 0.3581
+    },
+    {
+      "Temperature": 60,
+      "Time": 29,
+      "ShrinkageRatio": 0.3184
+    },
+    {
+      "Temperature": 70,
+      "Time": 0,
+      "ShrinkageRatio": 1.0
+    },
+    {
+      "Temperature": 70,
+      "Time": 2,
+      "ShrinkageRatio": 0.8543
+    },
+    {
+      "Temperature": 70,
+      "Time": 4,
+      "ShrinkageRatio": 0.7363
+    },
+    {
+      "Temperature": 70,
+      "Time": 6,
+      "ShrinkageRatio": 0.6406
+    },
+    {
+      "Temperature": 70,
+      "Time": 8,
+      "ShrinkageRatio": 0.563
+    },
+    {
+      "Temperature": 70,
+      "Time": 10,
+      "ShrinkageRatio": 0.5001
+    },
+    {
+      "Temperature": 70,
+      "Time": 12,
+      "ShrinkageRatio": 0.4491
+    },
+    {
+      "Temperature": 70,
+      "Time": 16,
+      "ShrinkageRatio": 0.3743
+    },
+    {
+      "Temperature": 70,
+      "Time": 20,
+      "ShrinkageRatio": 0.3252
+    },
+    {
+      "Temperature": 70,
+      "Time": 23,
+      "ShrinkageRatio": 0.2997
+    }
+  ]
+}

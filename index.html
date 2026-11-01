@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turmeric Drying Shrinkage Ratio Predictor | ANN MLP Model</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Top Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="brand">
+          <div class="brand-icon">🌿</div>
+          <div>
+            <div class="brand-badge">Food Engineering & AI Research</div>
+            <h1 class="brand-title">Turmeric Drying Shrinkage Ratio Predictor</h1>
+          </div>
+        </div>
+        <div class="header-metrics">
+          <div class="metric-chip highlight">
+            <span class="chip-label">Model Accuracy</span>
+            <span class="chip-val">R² = 0.99661</span>
+          </div>
+          <div class="metric-chip">
+            <span class="chip-label">Architecture</span>
+            <span class="chip-val">ANN (8, 4) tanh</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="main-container">
+      <section class="predictor-section">
+        <!-- Input Panel -->
+        <div class="card control-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="icon-bubble">🎛️</span>
+              <div>
+                <h2>Test Parameters</h2>
+                <p>Adjust temperature & drying duration to evaluate the ANN model</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Temperature Control -->
+            <div class="input-block">
+              <div class="input-label-row">
+                <label for="tempInput">Drying Temperature</label>
+                <div class="value-display">
+                  <span id="tempValue">80.0</span> <span class="unit">°C</span>
+                </div>
+              </div>
+              <input type="range" id="tempSlider" min="40" max="100" step="0.5" value="80.0" class="slider slider-temp">
+              <div class="slider-ticks">
+                <span onclick="setTemp(50)">50°C</span>
+                <span onclick="setTemp(60)">60°C</span>
+                <span onclick="setTemp(70)">70°C</span>
+                <span onclick="setTemp(80)">80°C</span>
+                <span onclick="setTemp(90)">90°C</span>
+              </div>
+              <div class="quick-chips">
+                <span class="quick-chip" onclick="setTemp(50)">50 °C (Lab)</span>
+                <span class="quick-chip" onclick="setTemp(60)">60 °C (Lab)</span>
+                <span class="quick-chip" onclick="setTemp(70)">70 °C (Lab)</span>
+                <span class="quick-chip active" id="chipTemp80" onclick="setTemp(80)">80 °C (Test)</span>
+              </div>
+            </div>
+
+            <!-- Drying Time Control -->
+            <div class="input-block">
+              <div class="input-label-row">
+                <label for="timeInput">Drying Duration</label>
+                <div class="value-display">
+                  <span id="timeValue">15.0</span> <span class="unit">min</span>
+                </div>
+              </div>
+              <input type="range" id="timeSlider" min="0" max="50" step="0.5" value="15.0" class="slider slider-time">
+              <div class="slider-ticks">
+                <span onclick="setTime(0)">0 min</span>
+                <span onclick="setTime(10)">10 min</span>
+                <span onclick="setTime(20)">20 min</span>
+                <span onclick="setTime(30)">30 min</span>
+                <span onclick="setTime(40)">40 min</span>
+              </div>
+              <div class="quick-chips">
+                <span class="quick-chip" onclick="setTime(0)">0 min (Fresh)</span>
+                <span class="quick-chip" onclick="setTime(10)">10 min</span>
+                <span class="quick-chip active" id="chipTime15" onclick="setTime(15)">15 min (Test)</span>
+                <span class="quick-chip" onclick="setTime(25)">25 min</span>
+              </div>
+            </div>
+
+            <!-- Trial Presets -->
+            <div class="presets-container">
+              <div class="presets-header">
+                <span>⚡ Quick Trial Scenarios:</span>
+              </div>
+              <div class="presets-grid">
+                <button class="preset-btn featured" onclick="applyPreset(80.0, 15.0)">
+                  <span class="preset-badge">Python Test</span>
+                  <span class="preset-main">80 °C · 15 min</span>
+                  <span class="preset-sub">Shrinkage ~ 0.3593</span>
+                </button>
+                <button class="preset-btn" onclick="applyPreset(50.0, 10.0)">
+                  <span class="preset-badge">Exp 50°C</span>
+                  <span class="preset-main">50 °C · 10 min</span>
+                  <span class="preset-sub">Actual: 0.7213</span>
+                </button>
+                <button class="preset-btn" onclick="applyPreset(60.0, 20.0)">
+                  <span class="preset-badge">Exp 60°C</span>
+                  <span class="preset-main">60 °C · 20 min</span>
+                  <span class="preset-sub">Actual: 0.4026</span>
+                </button>
+                <button class="preset-btn" onclick="applyPreset(70.0, 12.0)">
+                  <span class="preset-badge">Exp 70°C</span>
+                  <span class="preset-main">70 °C · 12 min</span>
+                  <span class="preset-sub">Actual: 0.4491</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output & Visualizer Panel -->
+        <div class="card result-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="icon-bubble accent">🔮</span>
+              <div>
+                <h2>ANN Prediction Output</h2>
+                <p>MLPRegressor Feedforward Result</p>
+              </div>
+            </div>
+            <span class="status-indicator">
+              <span class="pulsing-dot"></span> Online & Verified
+            </span>
+          </div>
+
+          <div class="card-body result-body">
+            <!-- Large Output Stat -->
+            <div class="prediction-box">
+              <div class="prediction-sub">Predicted Shrinkage Ratio (Sr = V / V₀)</div>
+              <div class="prediction-val" id="predShrinkage">0.3593</div>
+              <div class="prediction-meta">
+                <span class="meta-tag tag-reduction" id="volReduction">64.07% Volume Reduction</span>
+                <span class="meta-tag tag-stage" id="dryingStage">Equilibrium Falling Rate</span>
+              </div>
+            </div>
+
+            <!-- Visual Turmeric Shrinkage Diagram -->
+            <div class="rhizome-visual-wrapper">
+              <div class="visual-header">Morphological Volume Visualizer</div>
+              <div class="rhizome-visual-stage">
+                <div class="rhizome-box">
+                  <div class="rhizome-slice fresh">
+                    <span class="slice-inner"></span>
+                  </div>
+                  <div class="slice-label">Fresh (t = 0)<br><strong>1.0000 (100%)</strong></div>
+                </div>
+
+                <div class="arrow-indicator">➔</div>
+
+                <div class="rhizome-box">
+                  <div class="rhizome-slice dried" id="rhizomeDriedVisual">
+                    <span class="slice-inner"></span>
+                  </div>
+                  <div class="slice-label">Predicted Dried<br><strong id="driedPercentLabel">35.93% (0.3593)</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mathematical Breakdown -->
+            <div class="math-breakdown">
+              <div class="breakdown-title">Forward Propagation Trace:</div>
+              <div class="breakdown-grid">
+                <div class="math-pill">
+                  <span class="math-label">Z-Scaled Temp:</span>
+                  <span class="math-val" id="mathZTemp">+2.671</span>
+                </div>
+                <div class="math-pill">
+                  <span class="math-label">Z-Scaled Time:</span>
+                  <span class="math-val" id="mathZTime">+0.150</span>
+                </div>
+                <div class="math-pill">
+                  <span class="math-label">Hidden L1 (8):</span>
+                  <span class="math-val">tanh activated</span>
+                </div>
+                <div class="math-pill">
+                  <span class="math-label">Hidden L2 (4):</span>
+                  <span class="math-val">tanh activated</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="result-actions">
+              <button class="action-btn secondary" onclick="copyPrediction()">
+                📋 Copy Result
+              </button>
+              <button class="action-btn secondary" onclick="testLiveAPI()">
+                ⚡ Test API Call
+              </button>
+            </div>
+            <div id="apiTestFeedback" class="api-feedback hidden"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabs Navigation -->
+      <section class="tabs-section">
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab('chart')">📈 Drying Kinetics Curve</button>
+          <button class="tab-btn" onclick="switchTab('dataset')">📊 Experimental Dataset (34)</button>
+          <button class="tab-btn" onclick="switchTab('batch')">🧪 Batch Prediction Tester</button>
+          <button class="tab-btn" onclick="switchTab('api')">💻 REST API Docs & Code</button>
+          <button class="tab-btn" onclick="switchTab('model')">🧠 Model Architecture</button>
+        </div>
+
+        <!-- Tab 1: Dynamic Kinetics Chart -->
+        <div id="tab-chart" class="tab-panel active">
+          <div class="card chart-card">
+            <div class="card-header chart-header">
+              <div>
+                <h3>Dynamic Shrinkage Ratio vs Drying Time Kinetics</h3>
+                <p>The amber curve shows the ANN continuous prediction for <strong id="chartTempLabel">80.0 °C</strong>. Colored scatter points represent empirical experimental measurements.</p>
+              </div>
+              <div class="chart-controls">
+                <label><input type="checkbox" id="showExp50" checked onchange="updateChart()"> 50°C Exp Data</label>
+                <label><input type="checkbox" id="showExp60" checked onchange="updateChart()"> 60°C Exp Data</label>
+                <label><input type="checkbox" id="showExp70" checked onchange="updateChart()"> 70°C Exp Data</label>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="kineticsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Experimental Dataset Explorer -->
+        <div id="tab-dataset" class="tab-panel">
+          <div class="card table-card">
+            <div class="card-header">
+              <div>
+                <h3>Empirical Experimental Dataset (`turmeric_data.csv`)</h3>
+                <p>Experimental observations from convective drying trials alongside model prediction & residual error.</p>
+              </div>
+              <div class="filter-group">
+                <button class="filter-btn active" onclick="filterDataset('all', this)">All (34)</button>
+                <button class="filter-btn" onclick="filterDataset(50, this)">50 °C (13)</button>
+                <button class="filter-btn" onclick="filterDataset(60, this)">60 °C (11)</button>
+                <button class="filter-btn" onclick="filterDataset(70, this)">70 °C (10)</button>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table" id="datasetTable">
+                <thead>
+                  <tr>
+                    <th>Sample #</th>
+                    <th>Temperature (°C)</th>
+                    <th>Time (min)</th>
+                    <th>Actual Shrinkage Ratio</th>
+                    <th>ANN Predicted</th>
+                    <th>Absolute Error</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="datasetTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Batch Prediction Tester -->
+        <div id="tab-batch" class="tab-panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Batch Testing & Custom Inputs</h3>
+                <p>Input multiple test scenarios to evaluate or export results in bulk</p>
+              </div>
+              <div class="batch-actions">
+                <button class="action-btn secondary" onclick="addBatchRow()">+ Add Test Row</button>
+                <button class="action-btn primary" onclick="runBatchPredictions()">▶ Run All</button>
+                <button class="action-btn secondary" onclick="exportBatchCSV()">⬇ Export CSV</button>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table" id="batchTable">
+                <thead>
+                  <tr>
+                    <th>Row</th>
+                    <th>Temperature (°C)</th>
+                    <th>Time (minutes)</th>
+                    <th>Predicted Shrinkage Ratio</th>
+                    <th>Volume Reduction</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="batchTableBody">
+                  <!-- Default sample rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: REST API Documentation -->
+        <div id="tab-api" class="tab-panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Production REST API Reference</h3>
+                <p>Deployable serverless endpoints compatible with Vercel and local hosting</p>
+              </div>
+              <span class="badge-post">POST /api/predict</span>
+            </div>
+            <div class="card-body">
+              <div class="api-docs-grid">
+                <div class="api-spec-col">
+                  <h4>Request Schema (JSON)</h4>
+                  <pre class="code-block"><code>{
+  "temperature": 80.0,
+  "time": 15.0
+}</code></pre>
+
+                  <h4>Response Schema (200 OK)</h4>
+                  <pre class="code-block"><code>{
+  "temperature": 80.0,
+  "time": 15.0,
+  "predicted_shrinkage_ratio": 0.3593,
+  "raw_prediction": 0.3592706320668791,
+  "model": "MLPRegressor (8, 4)",
+  "r2_score": 0.99661
+}</code></pre>
+                </div>
+
+                <div class="api-code-col">
+                  <h4>Integration Examples</h4>
+                  <div class="code-tabs">
+                    <button class="code-tab active" onclick="showCodeSnippet('curl')">cURL</button>
+                    <button class="code-tab" onclick="showCodeSnippet('python')">Python</button>
+                    <button class="code-tab" onclick="showCodeSnippet('javascript')">JavaScript</button>
+                  </div>
+
+                  <div id="code-curl" class="code-snippet active">
+                    <pre class="code-block"><code>curl -X POST https://your-domain.vercel.app/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{"temperature": 80.0, "time": 15.0}'</code></pre>
+                  </div>
+
+                  <div id="code-python" class="code-snippet">
+                    <pre class="code-block"><code>import requests
+
+url = "https://your-domain.vercel.app/api/predict"
+payload = {"temperature": 80.0, "time": 15.0}
+response = requests.post(url, json=payload)
+data = response.json()
+
+print(f"Predicted Shrinkage Ratio: {data['predicted_shrinkage_ratio']}")</code></pre>
+                  </div>
+
+                  <div id="code-javascript" class="code-snippet">
+                    <pre class="code-block"><code>const res = await fetch('/api/predict', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ temperature: 80.0, time: 15.0 })
+});
+const data = await res.json();
+console.log('Prediction:', data.predicted_shrinkage_ratio);</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Model Architecture -->
+        <div id="tab-model" class="tab-panel">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>Model Specs & Hyperparameters</h3>
+                <p>Trained using scikit-learn MLPRegressor on turmeric drying kinetics</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="specs-grid">
+                <div class="spec-card">
+                  <div class="spec-label">Algorithm</div>
+                  <div class="spec-value">Multi-Layer Perceptron (MLPRegressor)</div>
+                </div>
+                <div class="spec-card">
+                  <div class="spec-label">Hidden Layers</div>
+                  <div class="spec-value">(8, 4) — 2 Hidden Layers</div>
+                </div>
+                <div class="spec-card">
+                  <div class="spec-label">Activation Function</div>
+                  <div class="spec-value">Hyperbolic Tangent (tanh)</div>
+                </div>
+                <div class="spec-card">
+                  <div class="spec-label">Optimization Solver</div>
+                  <div class="spec-value">L-BFGS (Quasi-Newton Method)</div>
+                </div>
+                <div class="spec-card">
+                  <div class="spec-label">Preprocessing</div>
+                  <div class="spec-value">StandardScaler (Mean = 0, Var = 1)</div>
+                </div>
+                <div class="spec-card">
+                  <div class="spec-label">Max Iterations</div>
+                  <div class="spec-value">5,000 Iterations</div>
+                </div>
+                <div class="spec-card highlight">
+                  <div class="spec-label">Coefficient of Determination (R²)</div>
+                  <div class="spec-value">0.99661 (99.66%)</div>
+                </div>
+                <div class="spec-card highlight">
+                  <div class="spec-label">Mean Squared Error (MSE)</div>
+                  <div class="spec-value">0.000114</div>
+                </div>
+              </div>
+
+              <div class="architecture-diagram">
+                <h4>Network Topological Layout</h4>
+                <div class="layers-flex">
+                  <div class="layer-column">
+                    <div class="layer-header">Input Layer (2)</div>
+                    <div class="node-badge">Temperature (°C)</div>
+                    <div class="node-badge">Time (min)</div>
+                  </div>
+                  <div class="layer-arrow">➔</div>
+                  <div class="layer-column">
+                    <div class="layer-header">Hidden Layer 1 (8)</div>
+                    <div class="node-badge mini">H1.1 (tanh)</div>
+                    <div class="node-badge mini">H1.2 (tanh)</div>
+                    <div class="node-badge mini">H1.3 (tanh)</div>
+                    <div class="node-badge mini">... 8 Neurons</div>
+                  </div>
+                  <div class="layer-arrow">➔</div>
+                  <div class="layer-column">
+                    <div class="layer-header">Hidden Layer 2 (4)</div>
+                    <div class="node-badge mini">H2.1 (tanh)</div>
+                    <div class="node-badge mini">H2.2 (tanh)</div>
+                    <div class="node-badge mini">H2.3 (tanh)</div>
+                    <div class="node-badge mini">H2.4 (tanh)</div>
+                  </div>
+                  <div class="layer-arrow">➔</div>
+                  <div class="layer-column">
+                    <div class="layer-header">Output Layer (1)</div>
+                    <div class="node-badge target">ShrinkageRatio</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>Turmeric Drying Kinematics AI Model · Developed for Research & Testing</div>
+      <div class="footer-links">
+        <a href="https://github.com/nitishyengkhom1234-sys/turmeric-shrinkage-ann" target="_blank" id="ghRepoLink">GitHub Repository</a>
+        <span>·</span>
+        <span>Deployed on Vercel</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
